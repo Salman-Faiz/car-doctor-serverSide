@@ -27,7 +27,8 @@ async function run() {
     await client.connect();
     // create collection to find multiple data from mongodb
     const serviceCollection = client.db("carDoctor").collection("Services");
-    // get data from services from mongoDB
+    const checkOutCollection = client.db("carDoctor").collection("checkout");
+    // get data  from mongoDB
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find();
       const result = await cursor.toArray();
@@ -45,6 +46,14 @@ async function run() {
 
       const result = await serviceCollection.findOne(query, options);
       res.send(result);
+
+      // POST chackOut data
+      app.post("/checkout", async (req, res) => {
+        const checkout = req.body;
+        console.log(checkout);
+        const result = await checkOutCollection.insertOne(checkout);
+        res.send(result);
+      });
     });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
