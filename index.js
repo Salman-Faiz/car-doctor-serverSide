@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const port = process.env.PORT || 5000;
@@ -27,9 +27,23 @@ async function run() {
     await client.connect();
     // create collection to find multiple data from mongodb
     const serviceCollection = client.db("carDoctor").collection("Services");
+    // get data from services from mongoDB
     app.get("/services", async (req, res) => {
       const cursor = serviceCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+    // get specific data from database using find
+    app.get("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      //
+      const options = {
+        // Include only the `title` and `services` fields in the returned document
+        projection: { title: 1, service_id: 1, price: 1 },
+      };
+
+      const result = await serviceCollection.findOne(query, options);
       res.send(result);
     });
     // Send a ping to confirm a successful connection
